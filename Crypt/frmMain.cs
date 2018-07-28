@@ -16,5 +16,29 @@ namespace Crypt
         {
             InitializeComponent();
         }
+
+        private void btnBrowsePayload_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog selectPayloadDialog = new OpenFileDialog())
+            {
+                selectPayloadDialog.Filter = "Executable files|*.exe";
+                if(selectPayloadDialog.ShowDialog() == DialogResult.OK)
+                {
+                    txtPayload.Text = selectPayloadDialog.FileName;
+                }
+            }
+        }
+
+        private void btnBrowseIcon_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog selectIconloadDialog = new OpenFileDialog())
+            {
+                selectIconloadDialog.Filter = "Icon files|*.ico";
+                if (selectIconloadDialog.ShowDialog() == DialogResult.OK)
+                {
+                    txtPayload.Text = selectIconloadDialog.FileName;
+                }
+            }
+        }
     }
 }

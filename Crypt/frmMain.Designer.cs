@@ -61,6 +61,7 @@
             this.btnBrowsePayload.TabIndex = 2;
             this.btnBrowsePayload.Text = "Browse";
             this.btnBrowsePayload.UseVisualStyleBackColor = true;
+            this.btnBrowsePayload.Click += new System.EventHandler(this.btnBrowsePayload_Click);
             // 
             // lblIcon
             // 
@@ -86,6 +87,7 @@
             this.btnBrowseIcon.TabIndex = 2;
             this.btnBrowseIcon.Text = "Browse";
             this.btnBrowseIcon.UseVisualStyleBackColor = true;
+            this.btnBrowseIcon.Click += new System.EventHandler(this.btnBrowseIcon_Click);
             // 
             // btnBuild
             // 
