@@ -31,12 +31,12 @@ namespace Crypt
 
         private void btnBrowseIcon_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog selectIconloadDialog = new OpenFileDialog())
+            using (OpenFileDialog selectIconDialog = new OpenFileDialog())
             {
-                selectIconloadDialog.Filter = "Icon files|*.ico";
-                if (selectIconloadDialog.ShowDialog() == DialogResult.OK)
+                selectIconDialog.Filter = "Icon files|*.ico";
+                if (selectIconDialog.ShowDialog() == DialogResult.OK)
                 {
-                    txtPayload.Text = selectIconloadDialog.FileName;
+                    txtPayload.Text = selectIconDialog.FileName;
                 }
             }
         }
