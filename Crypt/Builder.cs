@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Crypt
 {
-    class Compiler
+    class Builder
     {
     }
 }
