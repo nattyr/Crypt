@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -51,8 +52,18 @@ namespace Crypt
                 if (selectSaveDialog.ShowDialog() == DialogResult.OK)
                 {
                     options.buildDir = selectSaveDialog.FileName;
+                    Build();
                 }
             }
+        }
+
+        private void Build()
+        {
+            options.encryptionKey = Encryption.GenerateKey();
+            options.encryptionType = EncryptionType.XOR; //TODO: Delete
+            Byte[] payloadPE = File.ReadAllBytes(txtPayload.Text);
+            Builder builder = new Builder(payloadPE, options);
+            builder.Build();
         }
     }
 }
