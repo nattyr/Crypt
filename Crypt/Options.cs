@@ -12,7 +12,7 @@ namespace Crypt
         public Byte[] encryptionKey;
     }
 
-    enum EncryptionType
+    public enum EncryptionType
     {
         Rijndael,
         XOR
