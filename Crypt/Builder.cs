@@ -8,5 +8,13 @@ namespace Crypt
 {
     class Builder
     {
+        Byte[] payload;
+        Options options;
+
+        public Builder(byte[] payload, Options options)
+        {
+            this.payload = payload;
+            this.options = options;
+        }
     }
 }
