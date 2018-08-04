@@ -97,6 +97,7 @@
             this.btnBuild.TabIndex = 3;
             this.btnBuild.Text = "Build";
             this.btnBuild.UseVisualStyleBackColor = true;
+            this.btnBuild.Click += new System.EventHandler(this.btnBuild_Click);
             // 
             // frmMain
             // 

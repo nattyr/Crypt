@@ -12,6 +12,8 @@ namespace Crypt
 {
     public partial class frmMain : Form
     {
+        Options options;
+
         public frmMain()
         {
             InitializeComponent();
@@ -37,6 +39,18 @@ namespace Crypt
                 if (selectIconDialog.ShowDialog() == DialogResult.OK)
                 {
                     txtPayload.Text = selectIconDialog.FileName;
+                }
+            }
+        }
+
+        private void btnBuild_Click(object sender, EventArgs e)
+        {
+            using (SaveFileDialog selectSaveDialog = new SaveFileDialog())
+            {
+                selectSaveDialog.Filter = "Executable files|*.exe";
+                if (selectSaveDialog.ShowDialog() == DialogResult.OK)
+                {
+                    options.buildDir = selectSaveDialog.FileName;
                 }
             }
         }
