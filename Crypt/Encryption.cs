@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Crypt
 {
-    static class Encryption
+    public static class Encryption
     {
-        static byte[] RijndaelEncrypt(byte[] input, byte[] key)
+        public static byte[] RijndaelEncrypt(byte[] input, byte[] key)
         {
             RijndaelManaged rijAlg = new RijndaelManaged
             {
@@ -21,7 +21,7 @@ namespace Crypt
             return encrypter.TransformFinalBlock(input, 0, input.Length);
         }
 
-        static byte[] Xor(byte[] input, byte[] key)
+        public static byte[] Xor(byte[] input, byte[] key)
         {
             byte[] encrypted = new byte[input.Length];
 
