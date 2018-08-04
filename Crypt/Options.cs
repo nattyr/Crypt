@@ -6,7 +6,15 @@ using System.Threading.Tasks;
 
 namespace Crypt
 {
-    struct Options
+    public struct Options
     {
+        public EncryptionType encryptionType;
+        public Byte[] encryptionKey;
+    }
+
+    enum EncryptionType
+    {
+        Rijndael,
+        XOR
     }
 }
