@@ -8,6 +8,7 @@ namespace Crypt
 {
     public struct Options
     {
+        public string buildDir;
         public EncryptionType encryptionType;
         public Byte[] encryptionKey;
     }
