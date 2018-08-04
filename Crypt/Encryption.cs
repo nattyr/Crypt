@@ -9,6 +9,7 @@ namespace Crypt
 {
     public static class Encryption
     {
+        //Not to be used as an example of a propper Rijndael implementation
         public static byte[] RijndaelEncrypt(byte[] input, byte[] key)
         {
             RijndaelManaged rijAlg = new RijndaelManaged
@@ -31,6 +32,14 @@ namespace Crypt
             }
 
             return encrypted;
+        }
+
+        public static byte[] GenerateKey()
+        {
+            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+            byte[] key = new byte[32];
+            rng.GetBytes(key);
+            return key;
         }
     }
 }
