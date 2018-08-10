@@ -62,8 +62,12 @@ namespace Crypt
             options.encryptionKey = Encryption.GenerateKey();
             options.encryptionType = EncryptionType.XOR; //TODO: Delete
             Byte[] payloadPE = File.ReadAllBytes(txtPayload.Text);
+
             Builder builder = new Builder(payloadPE, options);
-            builder.Build();
+            bool buildResult = builder.Build();
+
+            string msgBoxTxt = "Build" + (buildResult ? "successful" : "failed");
+            MessageBox.Show(msgBoxTxt);
         }
     }
 }
