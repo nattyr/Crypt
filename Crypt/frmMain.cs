@@ -39,7 +39,7 @@ namespace Crypt
                 selectIconDialog.Filter = "Icon files|*.ico";
                 if (selectIconDialog.ShowDialog() == DialogResult.OK)
                 {
-                    txtPayload.Text = selectIconDialog.FileName;
+                    txtIcon.Text = selectIconDialog.FileName;
                 }
             }
         }
