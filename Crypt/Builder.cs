@@ -23,6 +23,8 @@ namespace Crypt
 
         public bool Build()
         {
+            options.encryptionKey = Encryption.GenerateKey();
+
             Byte[] encryptedPL = Encrypt(payload, options.encryptionType);
             string stubSrc = AddInfo(Properties.Resources.Stub);
 
@@ -70,6 +72,7 @@ namespace Crypt
             providerOptions.Add("CompilerVersion", "v2.0");
 
             //TODO: generate random names for resources
+            //TODO: move to separate function
             string resourceDir = "enc.resources";
             using (ResourceWriter resourceWriter = new ResourceWriter(resourceDir))
             {
