@@ -46,6 +46,12 @@ namespace Crypt
 
         private void btnBuild_Click(object sender, EventArgs e)
         {
+#if DEBUG
+            options.buildDir = @"D:\Libraries\Desktop\testing\crypt.exe";
+            txtPayload.Text = @"D:\Libraries\Desktop\testing\part1.exe";
+            Build();
+            return;
+#endif
             using (SaveFileDialog selectSaveDialog = new SaveFileDialog())
             {
                 selectSaveDialog.Filter = "Executable files|*.exe";
@@ -66,7 +72,7 @@ namespace Crypt
             Builder builder = new Builder(payloadPE, options);
             bool buildResult = builder.Build();
 
-            string msgBoxTxt = "Build" + (buildResult ? "successful" : "failed");
+            string msgBoxTxt = "Build " + (buildResult ? "successful" : "failed");
             MessageBox.Show(msgBoxTxt);
         }
     }
