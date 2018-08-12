@@ -91,6 +91,8 @@ namespace Crypt
 
             CompilerResults compResults = new CSharpCodeProvider(providerOptions).CompileAssemblyFromSource(compParams, stubSrc);
 
+            File.Delete(resourceDir);
+
             return !compResults.Errors.HasErrors;
         }
     }
