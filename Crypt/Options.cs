@@ -9,8 +9,12 @@ namespace Crypt
     public struct Options
     {
         public string buildDir;
+
         public EncryptionType encryptionType;
         public Byte[] encryptionKey;
+
+        public string resFileName;
+        public string resPayloadName;
     }
 
     public enum EncryptionType
