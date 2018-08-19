@@ -15,6 +15,7 @@ namespace Crypt
 
         public string resFileName;
         public string resPayloadName;
+        public string resLoaderName;
     }
 
     public enum EncryptionType

