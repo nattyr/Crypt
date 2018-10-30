@@ -67,6 +67,7 @@ namespace Crypt
             newStub = newStub.Replace("[resFileName]", _options.resFileName);
             newStub = newStub.Replace("[resPayloadName]", _options.resPayloadName);
             newStub = newStub.Replace("[resLoaderName]", _options.resLoaderName);
+            newStub = newStub.Replace("[hostDir]", _options.hostDir);
 
             return newStub;
         }

