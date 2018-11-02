@@ -3,10 +3,7 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Resources;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Crypt
 {
@@ -84,6 +81,7 @@ namespace Crypt
             return resourceDir;
         }
 
+        //TODO: fix this mess of a method
         private bool Compile(byte[] encPayload, byte[] encLoader, string stubSrc)
         {
             CompilerParameters compParams = new CompilerParameters();
@@ -93,8 +91,6 @@ namespace Crypt
             compParams.CompilerOptions = "/optimize+ /platform:x86 /target:winexe /unsafe";
 
             compParams.ReferencedAssemblies.Add("System.dll");
-            compParams.ReferencedAssemblies.Add("System.Windows.Forms.dll");
-            compParams.ReferencedAssemblies.Add("System.Drawing.dll");
 
             string resourceDir = CreateResource(encPayload, encLoader);
             compParams.EmbeddedResources.Add(resourceDir);

