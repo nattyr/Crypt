@@ -9,8 +9,24 @@ namespace Crypt
 {
     public static class Encryption
     {
+        public static byte[] Encrypt(EncryptionType encryptionType, Byte[] encryptionKey, Byte[] input)
+        {
+            Byte[] encryptedPL;
+            switch (encryptionType)
+            {
+                case EncryptionType.Rijndael:
+                    encryptedPL = Encryption.RijndaelEncrypt(input, encryptionKey);
+                    break;
+                default:
+                    encryptedPL = Encryption.Xor(input, encryptionKey);
+                    break;
+            }
+
+            return encryptedPL;
+        }
+
         //Not to be used as an example of a propper Rijndael implementation
-        public static byte[] RijndaelEncrypt(byte[] input, byte[] key)
+        private static byte[] RijndaelEncrypt(byte[] input, byte[] key)
         {
             RijndaelManaged rijAlg = new RijndaelManaged
             {
@@ -22,7 +38,7 @@ namespace Crypt
             return encrypter.TransformFinalBlock(input, 0, input.Length);
         }
 
-        public static byte[] Xor(byte[] input, byte[] key)
+        private static byte[] Xor(byte[] input, byte[] key)
         {
             byte[] encrypted = new byte[input.Length];
 

